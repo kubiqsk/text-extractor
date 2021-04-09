@@ -1,3 +1,35 @@
+function findInnerTexts( position, texts, layers ){
+	layers.forEach(function( sublayer ){
+		if( sublayer.type == "text" ){
+			var x = sublayer.rect.x;
+			var y = sublayer.rect.y;
+			var tempParent = sublayer.parent;
+			while( tempParent ){
+				x += tempParent.rect.x;
+				y += tempParent.rect.y;
+				tempParent = tempParent.parent;
+			}
+			if( x >= position.x && y >= position.y ){
+				if( x < ( position.x + position.width ) && y < ( position.y + position.height ) ){
+					if( texts[ y ] ){
+						if( texts[ y ][ x ] ){
+							texts[ y ][ x ].push( sublayer.content );
+						}else{
+							texts[ y ][ x ] = [ sublayer.content ];
+						}
+					}else{
+						texts[ y ] = {};
+						texts[ y ][ x ] = [ sublayer.content ];
+					}
+				}
+			}
+		}else if( sublayer.layers.length ){
+			texts = findInnerTexts( position, texts, sublayer.layers );
+		}
+	});
+	return texts;
+}
+
 function screen( context, selectedVersion, selectedScreen ){
 	var texts = {};
 	var tempStrings = [];
@@ -11,20 +43,7 @@ function screen( context, selectedVersion, selectedScreen ){
 	xDivider = xDivider.replace( /\\n/g, "\n" ).replace( /\\t/g, "\t" );
 	xDivider = ( xDivider && xDivider != "default" ) ? xDivider : "\t";
 
-	selectedVersion.layers.forEach(function( layer ){
-		if( layer.type == "text" ){
-			if( texts[ layer.rect.y ] ){
-				if( texts[ layer.rect.y ][ layer.rect.x ] ){
-					texts[ layer.rect.y ][ layer.rect.x ].push( layer.content );
-				}else{
-					texts[ layer.rect.y ][ layer.rect.x ] = [ layer.content ];
-				}
-			}else{
-				texts[ layer.rect.y ] = {};
-				texts[ layer.rect.y ][ layer.rect.x ] = [ layer.content ];
-			}
-		}
-	});
+	texts = findInnerTexts( selectedVersion.layers[0].rect, texts, selectedVersion.layers );
 
 	for( const [ y, xs ] of Object.entries( texts ) ){
 		tempStrings = [];
@@ -53,24 +72,15 @@ function layer( context, layer ){
 	xDivider = xDivider.replace( /\\n/g, "\n" ).replace( /\\t/g, "\t" );
 	xDivider = ( xDivider && xDivider != "default" ) ? xDivider : "\t";
 
-	layer.version.layers.forEach(function( sublayer ){
-		if( sublayer.type == "text" ){
-			if( sublayer.rect.x >= layer.rect.x && sublayer.rect.y >= layer.rect.y ){
-				if( sublayer.rect.x < ( layer.rect.x + layer.rect.width ) && sublayer.rect.y < ( layer.rect.y + layer.rect.height ) ){
-					if( texts[ sublayer.rect.y ] ){
-						if( texts[ sublayer.rect.y ][ sublayer.rect.x ] ){
-							texts[ sublayer.rect.y ][ sublayer.rect.x ].push( sublayer.content );
-						}else{
-							texts[ sublayer.rect.y ][ sublayer.rect.x ] = [ sublayer.content ];
-						}
-					}else{
-						texts[ sublayer.rect.y ] = {};
-						texts[ sublayer.rect.y ][ sublayer.rect.x ] = [ sublayer.content ];
-					}
-				}
-			}
-		}
-	});
+	var position = Object.assign( {}, layer.rect );
+	var tempParent = layer.parent;
+	while( tempParent ){
+		position.x += tempParent.rect.x;
+		position.y += tempParent.rect.y;
+		tempParent = tempParent.parent;
+	}
+
+	texts = findInnerTexts( position, texts, layer.version.layers );
 
 	for( const [ y, xs ] of Object.entries( texts ) ){
 		tempStrings = [];
