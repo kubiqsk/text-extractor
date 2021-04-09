@@ -30,16 +30,22 @@
     ],
     "options": [
       {
-        "name": "Strings divider",
+        "name": "x axis divider",
         "type": "text",
-        "id": "stringsDivider",
+        "id": "xDivider",
+        "default": "default"
+      },
+      {
+        "name": "y axis divider",
+        "type": "text",
+        "id": "yDivider",
         "default": "default"
       }
     ]
   },
   "dependencies": {
     "flatted": "^2.0.0",
-    "npm": "^6.9.0",
-    "zem": "^0.3.4"
+    "npm": "^6.14.12",
+    "zem": "^1.3.0"
   }
 }
