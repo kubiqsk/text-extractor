@@ -1,0 +1,45 @@
+{
+  "name": "text-extractor",
+  "version": "0.1.0",
+  "description": "Export texts in bulk",
+  "author": {
+    "name": "KubiQ",
+    "email": "info@kubiq.sk",
+    "url": "https://kubiq.sk"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kubiqsk/text-extractor"
+  },
+  "scripts": {
+    "start": "zem start",
+    "build": "zem build",
+    "clean": "zem clean",
+    "exec": "zem exec",
+    "build:test": "zem build --dev",
+    "test": "npm run build:test && jest --testURL http://localhost && npm run clean",
+    "publish": "zem publish"
+  },
+  "zeplin": {
+    "displayName": "Text Extractor",
+    "platforms": [
+      "web",
+      "ios",
+      "android",
+      "osx"
+    ],
+    "options": [
+      {
+        "name": "Strings divider",
+        "type": "text",
+        "id": "stringsDivider",
+        "default": "default"
+      }
+    ]
+  },
+  "dependencies": {
+    "flatted": "^2.0.0",
+    "npm": "^6.9.0",
+    "zem": "^0.3.4"
+  }
+}
